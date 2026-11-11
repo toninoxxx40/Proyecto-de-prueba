@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Grammar Challenge</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#172554,#4338ca);color:#172554;min-height:100vh;padding:24px}
+.container{max-width:760px;margin:25px auto;background:white;border-radius:24px;padding:28px;box-shadow:0 15px 40px #0004}
+header{text-align:center}
+h1{color:#4338ca;margin-bottom:6px}
+.subtitle{color:#64748b}
+.pills{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}
+.pill{padding:9px 14px;border-radius:20px;font-weight:bold;background:#e0e7ff;color:#3730a3}
+button{border:0;border-radius:12px;padding:13px 18px;font-size:16px;font-weight:bold;cursor:pointer}
+.primary{background:#4f46e5;color:white}
+.primary:hover{background:#3730a3}
+.option{display:block;width:100%;text-align:left;background:#f1f5f9;margin:10px 0;color:#1e293b;border:2px solid transparent}
+.option:hover{border-color:#818cf8;background:#eef2ff}
+.option:disabled{cursor:default;opacity:1}
+.correct{background:#dcfce7!important;border-color:#16a34a!important}
+.incorrect{background:#fee2e2!important;border-color:#dc2626!important}
+#quiz{display:none}
+.topline{display:flex;justify-content:space-between;gap:12px;color:#64748b;font-weight:bold}
+.progress{height:10px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin:14px 0 22px}
+.bar{height:100%;width:0;background:#4f46e5;transition:width .3s}
+.question{font-size:22px;font-weight:bold;line-height:1.4;margin:20px 0}
+.hint{color:#64748b;font-size:14px}
+.feedback{padding:14px;border-radius:12px;margin:16px 0;display:none;line-height:1.5}
+.feedback.good{display:block;background:#dcfce7;color:#166534}
+.feedback.bad{display:block;background:#fee2e2;color:#991b1b}
+.actions{display:flex;justify-content:flex-end;margin-top:18px}
+#result{display:none;text-align:center}
+.score{font-size:48px;font-weight:bold;color:#4f46e5;margin:12px}
+input{padding:13px;border:2px solid #cbd5e1;border-radius:10px;font-size:16px;width:100%;margin:10px 0 18px}
+.small{font-size:13px;color:#64748b}
+@media(max-width:550px){body{padding:10px}.container{padding:20px;margin:10px auto}.question{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div style="font-size:42px">🎮 📚 ⭐</div>
+  <h1>ENGLISH GRAMMAR CHALLENGE</h1>
+  <p class="subtitle">Present Simple vs Past Simple</p>
+  <div class="pills">
+    <span class="pill">🟦 Present Simple</span>
+    <span class="pill">🟧 Past Simple</span>
+    <span class="pill">🏆 15 Questions</span>
+  </div>
+</header>
+
+<section id="welcome">
+  <h2>Are you ready?</h2>
+  <p>Test your English grammar skills! Read each question carefully and choose the correct answer.</p>
+  <p><b>¿Estás preparado/a?</b> Lee cada pregunta y selecciona la alternativa correcta. Recibirás retroalimentación después de cada respuesta.</p>
+  <label for="student">Your name / Tu nombre (optional)</label>
+  <input id="student" placeholder="Write your name here...">
+  <button class="primary" onclick="startQuiz()">START CHALLENGE 🚀</button>
+  <p class="small">15 questions · Instant feedback · Final score</p>
+</section>
+
+<section id="quiz">
+  <div class="topline">
+    <span id="counter">Question 1/15</span>
+    <span id="points">⭐ 0 points</span>
+  </div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="pill" id="topic">PRESENT SIMPLE</div>
+  <div class="question" id="question"></div>
+  <div class="hint" id="instruction">Choose the correct answer / Elige la respuesta correcta.</div>
+  <div id="options"></div>
+  <div id="feedback" class="feedback"></div>
+  <div class="actions">
+    <button id="next" class="primary" onclick="nextQuestion()" disabled>Next question →</button>
+  </div>
+</section>
+
+<section id="result">
+  <div style="font-size:55px">🏆</div>
+  <h2>CHALLENGE COMPLETED!</h2>
+  <p id="greeting"></p>
+  <div class="score" id="finalScore"></div>
+  <h3 id="message"></h3>
+  <p id="summary"></p>
+  <button class="primary" onclick="restart()">PLAY AGAIN 🔄</button>
+</section>
+</div>
+
+<script>
+const questions = [
+ {topic:"PRESENT SIMPLE",q:"My brother _____ football every Saturday.",o:["play","plays","played","playing"],a:1,e:"Correct! With he, she or it, we add -s to the verb. ¡Con he, she o it agregamos -s."},
+ {topic:"PAST SIMPLE",q:"Yesterday, we _____ a very interesting movie.",o:["watch","watches","watched","watching"],a:2,e:"Correct! Yesterday indicates the past. Watch is a regular verb: watched."},
+ {topic:"PRESENT SIMPLE",q:"She _____ like coffee.",o:["don't","doesn't","isn't","didn't"],a:1,e:"Correct! In the negative, use doesn't + base verb with he, she or it."},
+ {topic:"PAST SIMPLE",q:"They _____ to the beach last weekend.",o:["go","goes","went","going"],a:2,e:"Correct! Went is the past form of the irregular verb go."},
+ {topic:"PRESENT SIMPLE",q:"_____ your parents work in a school?",o:["Does","Do","Did","Are"],a:1,e:"Correct! Use Do with I, you, we and they to form present simple questions."},
+ {topic:"PAST SIMPLE",q:"I _____ my homework two hours ago.",o:["finish","finishes","finished","finishing"],a:2,e:"Correct! Two hours ago indicates the past. Finish becomes finished."},
+ {topic:"PRESENT SIMPLE",q:"Water _____ at 100°C.",o:["boil","boils","boiled","boiling"],a:1,e:"Correct! This is a scientific fact. Use Present Simple."},
+ {topic:"PAST SIMPLE",q:"_____ you see the new student yesterday?",o:["Do","Does","Did","Are"],a:2,e:"Correct! Use Did to form questions in the Past Simple."},
+ {topic:"PRESENT SIMPLE",q:"My friends usually _____ early.",o:["arrives","arrive","arrived","arriving"],a:1,e:"Correct! With they, use the base form: arrive."},
+ {topic:"PAST SIMPLE",q:"She didn't _____ breakfast this morning.",o:["ate","eats","eat","eating"],a:2,e:"Correct! After didn't, always use the base form of the verb: eat."},
+ {topic:"PRESENT SIMPLE",q:"Look at the sentence: 'He study English every day.' What is the mistake?",o:["He should be They","Study should be studies","Every day should be yesterday","There is no mistake"],a:1,e:"Correct! Study changes to studies with he: consonant + y becomes -ies."},
+ {topic:"PAST SIMPLE",q:"Choose the correct sentence.",o:["We goed to school.","We go to school yesterday.","We went to school yesterday.","We goes to school yesterday."],a:2,e:"Correct! Went is the correct past form of go."},
+ {topic:"PRESENT SIMPLE",q:"How often _____ Tom play tennis?",o:["do","does","did","is"],a:1,e:"Correct! Use Does with he, she or it in Present Simple questions."},
+ {topic:"PAST SIMPLE",q:"Last night, my sister _____ a book and _____ to bed.",o:["read / went","reads / goes","read / go","reading / went"],a:0,e:"Correct! Read (past, pronounced /red/) and went are past forms."},
+ {topic:"MIXED TENSES",q:"My dad _____ coffee every morning, but yesterday he _____ tea.",o:["drinks / drank","drank / drinks","drink / drink","drinks / drink"],a:0,e:"Correct! Every morning = Present Simple; yesterday = Past Simple."}
+];
+
+let current=0,score=0,answered=false,order=[];
+
+function startQuiz(){
+ document.getElementById("welcome").style.display="none";
+ document.getElementById("result").style.display="none";
+ document.getElementById("quiz").style.display="block";
+ current=0;score=0;answered=false;
+ order=questions.map((_,i)=>i);
+ order.sort(()=>Math.random()-0.5);
+ showQuestion();
+}
+
+function showQuestion(){
+ answered=false;
+ const q=questions[order[current]];
+ document.getElementById("counter").textContent=`Question ${current+1}/15`;
+ document.getElementById("points").textContent=`⭐ ${score} points`;
+ document.getElementById("bar").style.width=`${current/15*100}%`;
+ document.getElementById("topic").textContent=q.topic;
+ document.getElementById("question").textContent=q.q;
+ document.getElementById("feedback").className="feedback";
+ document.getElementById("feedback").style.display="none";
+ document.getElementById("next").disabled=true;
+ document.getElementById("next").textContent=current===14?"SEE RESULTS 🏆":"Next question →";
+ const box=document.getElementById("options");
+ box.innerHTML="";
+ q.o.forEach((option,i)=>{
+  const b=document.createElement("button");
+  b.className="option";
+  b.textContent=String.fromCharCode(65+i)+". "+option;
+  b.onclick=()=>checkAnswer(i,b);
+  box.appendChild(b);
+ });
+}
+
+function checkAnswer(choice,button){
+ if(answered)return;
+ answered=true;
+ const q=questions[order[current]];
+ const buttons=document.querySelectorAll(".option");
+ buttons.forEach((b,i)=>{
+  b.disabled=true;
+  if(i===q.a)b.classList.add("correct");
+ });
+ const fb=document.getElementById("feedback");
+ if(choice===q.a){
+  score++;
+  fb.className="feedback good";
+  fb.innerHTML="✅ <b>Excellent! Correct answer!</b><br>"+q.e;
+ }else{
+  button.classList.add("incorrect");
+  fb.className="feedback bad";
+  fb.innerHTML="❌ <b>Not quite! / ¡No exactamente!</b><br>Correct answer: <b>"+q.o[q.a]+"</b><br>"+q.e;
+ }
+ fb.style.display="block";
+ document.getElementById("points").textContent=`⭐ ${score} points`;
+ document.getElementById("bar").style.width=`${(current+1)/15*100}%`;
+ document.getElementById("next").disabled=false;
+}
+
+function nextQuestion(){
+ if(!answered)return;
+ current++;
+ if(current<questions.length)showQuestion();
+ else showResults();
+}
+
+function showResults(){
+ document.getElementById("quiz").style.display="none";
+ document.getElementById("result").style.display="block";
+ const name=document.getElementById("student").value.trim();
+ document.getElementById("greeting").textContent=name?`Well done, ${name}!`:"Well done!";
+ document.getElementById("finalScore").textContent=`${score}/15`;
+ const percent=Math.round(score/15*100);
+ let message,summary;
+ if(score>=13){message="🌟 Excellent work!";summary="You have an excellent understanding of both tenses. ¡Excelente dominio de los tiempos verbales!"}
+ else if(score>=10){message="👏 Great job!";summary="You are doing very well. Keep practising irregular verbs and questions."}
+ else if(score>=7){message="💪 Good effort!";summary="You are making progress. Review the rules and try again."}
+ else{message="📚 Keep practising!";summary="Review the Present Simple and Past Simple rules. You can do it!"}
+ document.getElementById("message").textContent=message;
+ document.getElementById("summary").textContent=`${percent}% correct · ${summary}`;
+ document.getElementById("bar").style.width="100%";
+}
+
+function restart(){
+ document.getElementById("result").style.display="none";
+ document.getElementById("welcome").style.display="block";
+ document.getElementById("student").value="";
+}
+</script>
+</body>
+</html>
